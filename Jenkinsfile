@@ -1,4 +1,6 @@
 pipeline{
+    agent any
+    
     tools{
         maven_home 'maven-3.9.3'
     }
