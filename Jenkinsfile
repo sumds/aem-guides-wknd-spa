@@ -8,6 +8,7 @@ pipeline{
         timestamps()
     }
     triggers {
+        githubPush()
     }
 
     stages{
