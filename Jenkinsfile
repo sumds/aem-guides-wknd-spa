@@ -1,13 +1,13 @@
 pipeline{
     agent any
-    
+
     tools{
-        maven_home 'maven-3.9.3'
+        maven 'maven-3.9.3'
     }
     options {
         timestamps()
     }
-    triggers{
+    triggers {
     }
 
     stages{
@@ -18,16 +18,18 @@ pipeline{
         }
         stage("Build source code"){
             steps{
-                sh "${maven_home}/bin/mvn clean package"
+                sh "mvn clean package"
             }
         }
         stage("Execute sonarqube report"){
             steps{
-                sh "${maven_home}/bin/mvn sonar:sonar"
+                sh "mvn sonar:sonar"
             }
         }
         stage("Upload Artifact To Nexus"){
-            sh "${maven_home}/bin/mvn deploy"
+            steps{
+                sh "mvn deploy"
+            }
         }
     }
 }
