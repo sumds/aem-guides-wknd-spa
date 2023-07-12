@@ -1,17 +1,31 @@
-node{
-    def maven_home = tool name:"maven-3.9.3"
-    properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5')), pipelineTriggers([githubPush()])])
-    
-    stage("Checkout from git"){
-        git credentialsId: 'sumds', url: 'https://github.com/sumds/aem-guides-wknd-spa.git'
+pipeline{
+    tools{
+        maven_home 'maven-3.9.3'
     }
-    stage('Build source code'){
-        sh "${maven_home}/bin/mvn clean package"
+    options {
+        timestamps()
     }
-    stage('ExecuteSonarCubeReport'){
-        sh "${maven_home}/bin/mvn sonar:sonar"
+    triggers{
     }
-    stage('UploadArtifactToNexus'){
-        sh "${maven_home}/bin/mvn deploy"
+
+    stages{
+        stage("Checkout from git"){
+            steps{
+                git credentialsId: 'sumds', url: 'https://github.com/sumds/aem-guides-wknd-spa.git'
+            }
+        }
+        stage("Build source code"){
+            steps{
+                sh "${maven_home}/bin/mvn clean package"
+            }
+        }
+        stage("Execute sonarqube report"){
+            steps{
+                sh "${maven_home}/bin/mvn sonar:sonar"
+            }
+        }
+        stage("Upload Artifact To Nexus"){
+            sh "${maven_home}/bin/mvn deploy"
+        }
     }
 }
