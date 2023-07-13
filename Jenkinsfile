@@ -21,11 +21,7 @@ pipeline{
                 git branch: "${params.branchName}",credentialsId: 'sumds', url: "${params.giturl}"
             }
         }
-        stage("Run unit test case"){
-            steps{
-                sh 'mvn test'
-            }
-        }
+        
         stage("Build source code"){
             steps{
                 sh "mvn clean package"
