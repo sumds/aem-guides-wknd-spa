@@ -7,10 +7,7 @@ pipeline{
     options {
         timestamps()
     }
-    
-    triggers {
-        githubPush()
-    }
+
     parameters {
         choice choices: ['master', 'develop', 'feature', 'qa'], name: 'branchName'
         string defaultValue: 'https://github.com/sumds/aem-guides-wknd-spa.git', name: 'giturl'
