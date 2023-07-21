@@ -37,6 +37,9 @@ pipeline{
             steps{
                 //sh "mvn deploy"
                 sh "mvn deploy:deploy-file -DgroupId=com.adobe.aem.guides.wkndspa.react -DartifactId=aem-guides-wknd-spa.react -Dversion=1.0.0-SNAPSHOT -DgeneratePom=true -Dpackaging=zip -DrepositoryId=nexus -Durl=http://3.92.61.217:8081/repository/wknd-spa-snapshot -Dfile=/var/lib/jenkins/workspace/aem-pipeline-code/all/target/aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT.zip"
+                sh "mvn deploy:deploy-file -DgroupId=com.adobe.aem.guides.wkndspa.react -DartifactId=aem-guides-wknd-spa.react -Dversion=1.0.0-SNAPSHOT -DgeneratePom=true -Dpackaging=zip -DrepositoryId=nexus -Durl=http://3.92.61.217:8081/repository/wknd-spa-snapshot -Dfile=/var/lib/jenkins/workspace/aem-pipeline-code/ui.apps/target/aem-guides-wknd-spa.react.ui.apps-1.0.0-SNAPSHOT.zip"
+                sh "mvn deploy:deploy-file -DgroupId=com.adobe.aem.guides.wkndspa.react -DartifactId=aem-guides-wknd-spa.react -Dversion=1.0.0-SNAPSHOT -DgeneratePom=true -Dpackaging=zip -DrepositoryId=nexus -Durl=http://3.92.61.217:8081/repository/wknd-spa-snapshot -Dfile=/var/lib/jenkins/workspace/aem-pipeline-code/ui.config/target/aem-guides-wknd-spa.react.ui.config-1.0.0-SNAPSHOT.zip"
+                sh "mvn deploy:deploy-file -DgroupId=com.adobe.aem.guides.wkndspa.react -DartifactId=aem-guides-wknd-spa.react -Dversion=1.0.0-SNAPSHOT -DgeneratePom=true -Dpackaging=zip -DrepositoryId=nexus -Durl=http://3.92.61.217:8081/repository/wknd-spa-snapshot -Dfile=/var/lib/jenkins/workspace/aem-pipeline-code/ui.content/target/aem-guides-wknd-spa.react.ui.content-1.0.0-SNAPSHOT.zip"
             }
         }
     }
