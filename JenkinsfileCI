@@ -27,11 +27,11 @@ pipeline{
             }
         }
 
-        // stage("Execute sonarqube report"){
-        //     steps{
-        //         sh "mvn sonar:sonar"
-        //     }
-        // }
+        stage("Execute sonarqube report"){
+            steps{
+                sh "mvn sonar:sonar"
+            }
+        }
 
         stage("Upload Artifact To Nexus"){
             steps{
