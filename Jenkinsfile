@@ -21,20 +21,22 @@ pipeline{
             }
         }
         
-        stage("Build source code"){
-            steps{
-                sh "mvn clean package"
-            }
-        }
-        stage("Execute sonarqube report"){
-            steps{
-                sh "mvn sonar:sonar"
-            }
-        }
+        // stage("Build source code"){
+        //     steps{
+        //         sh "mvn clean package"
+        //     }
+        // }
+
+        // stage("Execute sonarqube report"){
+        //     steps{
+        //         sh "mvn sonar:sonar"
+        //     }
+        // }
+
         stage("Upload Artifact To Nexus"){
             steps{
                 //sh "mvn deploy"
-                sh "mvn deploy:deploy-file -DgroupId=com.adobe.aem.guides.wkndspa.react -DartifactId=aem-guides-wknd-spa.react -Dversion=1.0.0-SNAPSHOT -DgeneratePom=true -Dpackaging=zip -DrepositoryId=nexus -Durl=http://3.92.61.217:8081/repository/wknd-spa-snapshot -Dfile=target/all/aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT.zip"
+                sh "mvn deploy:deploy-file -DgroupId=com.adobe.aem.guides.wkndspa.react -DartifactId=aem-guides-wknd-spa.react -Dversion=1.0.0-SNAPSHOT -DgeneratePom=true -Dpackaging=zip -DrepositoryId=nexus -Durl=http://3.92.61.217:8081/repository/wknd-spa-snapshot -Dfile=/var/lib/jenkins/workspace/aem-pipeline-code/all/target/aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT.zip"
             }
         }
     }
