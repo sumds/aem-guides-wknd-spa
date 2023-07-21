@@ -33,7 +33,8 @@ pipeline{
         }
         stage("Upload Artifact To Nexus"){
             steps{
-                sh "mvn deploy"
+                //sh "mvn deploy"
+                sh "mvn deploy:deploy-file -DgroupId=com.adobe.aem.guides.wkndspa.react -DartifactId=aem-guides-wknd-spa.react -Dversion=1.0.0-SNAPSHOT -DgeneratePom=true -Dpackaging=zip -DrepositoryId=nexus -Durl=http://3.92.61.217:8081/repository/wknd-spa-snapshot -Dfile=target/all/aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT.zip"
             }
         }
     }
