@@ -80,7 +80,7 @@ pipeline{
                     def downloadSpec = """{
                         "files": [
                             {
-                            "pattern": "aem-local-demo-snapshot-repo",
+                            "pattern": "aem-local-demo-snapshot-repo/{1}",
                             "target": "test/",
                             "flat": "false",
                             "props" : "${properties}"
@@ -88,6 +88,8 @@ pipeline{
                         ]
                     }"""
                     def buildInfo = server.download(downloadSpec)
+                    buildInfo.env.collect()
+                    server.publishBuildInfo(buildInfo)
                 }
             }
         }     
