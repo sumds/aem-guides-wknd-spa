@@ -75,8 +75,10 @@ pipeline{
         stage ('Deploy to Prod'){
             steps {
                 script {
+                    echo '<--------------- AEM package Deploy to Prod started --------------->'
                     def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"jfrog_access"
                     def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}";
+                    echo "printing prop"
                     echo "${properties}"
                     def downloadSpec = """{
                         "files": [
@@ -91,6 +93,7 @@ pipeline{
                     def buildInfo = server.download(downloadSpec)
                     buildInfo.env.collect()
                     server.publishBuildInfo(buildInfo)
+                    echo '<---------------  Ended AEM package Deploy to Prod --------------->'  
                 }
             }
         }     
