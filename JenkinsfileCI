@@ -1,5 +1,4 @@
 def registry = 'http://3.85.103.123:8082'
-
 pipeline{
     agent any
 
