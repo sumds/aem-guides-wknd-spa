@@ -540,6 +540,46 @@ Bundle-DocURL:
                         <plugin>
                             <groupId>org.apache.jackrabbit</groupId>
                             <artifactId>filevault-package-maven-plugin</artifactId>
+                            
+                            <configuration>
+                                    <properties>
+                                        <cloudManagerTarget>none</cloudManagerTarget>
+                                    </properties>
+                                    <filters>
+                                        <!-- /apps root -->
+                                        <filter>
+                                            <root>/apps</root>
+                                        </filter>
+                                        <filter>
+                                            <root>/apps/wknd-spa-react</root>
+                                        </filter>
+                                        <!-- Common overlay roots -->
+                                        <filter>
+                                            <root>/apps/sling</root>
+                                        </filter>
+                                        <filter>
+                                            <root>/apps/cq</root>
+                                        </filter>
+                                        <filter>
+                                            <root>/apps/dam</root>
+                                        </filter>
+                                        <filter>
+                                            <root>/apps/wcm</root>
+                                        </filter>
+                                        <filter>
+                                            <root>/apps/msm</root>
+                                        </filter>
+                                        <!-- Immutable context-aware configurations -->
+                                        <filter>
+                                            <root>/apps/settings</root>
+                                        </filter>
+                                        <!-- DAM folder root, will be created via repoinit -->
+                                        <filter>
+                                            <root>/content/dam/wknd-spa-react</root>
+                                        </filter>
+                                    </filters>
+                            </configuration>
+
                             <executions>
                                 <execution>
                                     <id>create-package</id>
