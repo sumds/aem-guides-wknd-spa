@@ -1,3 +1,5 @@
+def registry = 'http://3.85.103.123:8082'
+
 pipeline{
     agent any
 
@@ -24,9 +26,9 @@ pipeline{
         stage("build"){
             steps{
                 echo "----------- build started ----------"
-                sh "mvn clean install"
-                //sh "mvn clean install -Dmaven.test.skip=true"
-                echo "----------- build complted ----------"
+                // sh "mvn clean install"
+                sh "mvn clean install -Dmaven.test.skip=true"
+                echo "----------- build completed ----------"
             }
         }
 
@@ -36,13 +38,39 @@ pipeline{
             }
         }
 
-        stage("Upload Artifact To Nexus"){
-            steps{
-               sh "mvn deploy:deploy-file -DgroupId=wkndspa -DartifactId=wknd-spa.react.all-1.0.0 -Dversion=1.0.0-SNAPSHOT -DgeneratePom=false -Dpackaging=zip -DrepositoryId=nexus -Durl=http://3.92.61.217:8081/repository/wknd-spa-snapshot -Dfile=/var/lib/jenkins/workspace/aem-pipeline-code/all/target/aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT.zip"
-               sh "mvn deploy:deploy-file -DgroupId=wkndspa -DartifactId=wknd-spa.react.ui.apps-1.0.0 -Dversion=1.0.0-SNAPSHOT -DgeneratePom=false -Dpackaging=zip -DrepositoryId=nexus -Durl=http://3.92.61.217:8081/repository/wknd-spa-snapshot -Dfile=/var/lib/jenkins/workspace/aem-pipeline-code/ui.apps/target/aem-guides-wknd-spa.react.ui.apps-1.0.0-SNAPSHOT.zip"
-               sh "mvn deploy:deploy-file -DgroupId=wkndspa -DartifactId=wknd-spa.react.ui.config-1.0.0 -Dversion=1.0.0-SNAPSHOT -DgeneratePom=false -Dpackaging=zip -DrepositoryId=nexus -Durl=http://3.92.61.217:8081/repository/wknd-spa-snapshot -Dfile=/var/lib/jenkins/workspace/aem-pipeline-code/ui.config/target/aem-guides-wknd-spa.react.ui.config-1.0.0-SNAPSHOT.zip"
-               sh "mvn deploy:deploy-file -DgroupId=wkndspa -DartifactId=wknd-spa.react.ui.content-1.0.0 -Dversion=1.0.0-SNAPSHOT -DgeneratePom=false -Dpackaging=zip -DrepositoryId=nexus -Durl=http://3.92.61.217:8081/repository/wknd-spa-snapshot -Dfile=/var/lib/jenkins/workspace/aem-pipeline-code/ui.content/target/aem-guides-wknd-spa.react.ui.content-1.0.0-SNAPSHOT.zip"            
-            }
-        }        
+        // stage("Upload Artifact To Nexus"){
+        //     steps{
+        //        sh "mvn deploy:deploy-file -DgroupId=wkndspa -DartifactId=wknd-spa.react.all-1.0.0 -Dversion=1.0.0-SNAPSHOT -DgeneratePom=false -Dpackaging=zip -DrepositoryId=nexus -Durl=http://3.92.61.217:8081/repository/wknd-spa-snapshot -Dfile=/var/lib/jenkins/workspace/aem-pipeline-code/all/target/aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT.zip"
+        //        sh "mvn deploy:deploy-file -DgroupId=wkndspa -DartifactId=wknd-spa.react.ui.apps-1.0.0 -Dversion=1.0.0-SNAPSHOT -DgeneratePom=false -Dpackaging=zip -DrepositoryId=nexus -Durl=http://3.92.61.217:8081/repository/wknd-spa-snapshot -Dfile=/var/lib/jenkins/workspace/aem-pipeline-code/ui.apps/target/aem-guides-wknd-spa.react.ui.apps-1.0.0-SNAPSHOT.zip"
+        //        sh "mvn deploy:deploy-file -DgroupId=wkndspa -DartifactId=wknd-spa.react.ui.config-1.0.0 -Dversion=1.0.0-SNAPSHOT -DgeneratePom=false -Dpackaging=zip -DrepositoryId=nexus -Durl=http://3.92.61.217:8081/repository/wknd-spa-snapshot -Dfile=/var/lib/jenkins/workspace/aem-pipeline-code/ui.config/target/aem-guides-wknd-spa.react.ui.config-1.0.0-SNAPSHOT.zip"
+        //        sh "mvn deploy:deploy-file -DgroupId=wkndspa -DartifactId=wknd-spa.react.ui.content-1.0.0 -Dversion=1.0.0-SNAPSHOT -DgeneratePom=false -Dpackaging=zip -DrepositoryId=nexus -Durl=http://3.92.61.217:8081/repository/wknd-spa-snapshot -Dfile=/var/lib/jenkins/workspace/aem-pipeline-code/ui.content/target/aem-guides-wknd-spa.react.ui.content-1.0.0-SNAPSHOT.zip"            
+        //     }
+        // }      
+
+        stage("Jar Publish") {
+            steps {
+                script {
+                        echo '<--------------- Jar Publish Started --------------->'
+                        def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"jfrog_access"
+                        def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}";
+                        def uploadSpec = """{
+                            "files": [
+                                {
+                                "pattern": "deployment/(*)",
+                                "target": "aem-local-demo-release-repo/{1}",
+                                "flat": "false",
+                                "props" : "${properties}",
+                                "exclusions": [ "*.sha1", "*.md5", "*.jar", "*.pom", "*.properties"]
+                                }
+                            ]
+                        }"""
+                        def buildInfo = server.upload(uploadSpec)
+                        buildInfo.env.collect()
+                        server.publishBuildInfo(buildInfo)
+                        echo '<--------------- Jar Publish Ended --------------->'  
+                
+                }
+            }   
+        }     
     }
 }

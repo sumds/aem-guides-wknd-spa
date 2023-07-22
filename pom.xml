@@ -37,6 +37,7 @@
         <module>it.tests</module>
         <module>dispatcher</module>
         <module>ui.tests</module>
+        <!--Included the module to create a seperate deployment dir-->
         <module>deployment</module>
     </modules>
 
@@ -62,7 +63,8 @@
          <sonar.login>squ_610deb297baf0f4a429e1260f43e87860f30853e</sonar.login>        
     </properties>
    
-    <distributionManagement>
+    <!--Jenkins integration with Nexus repo-->
+    <!-- <distributionManagement>
         <repository>
             <id>nexus</id>
             <name>wknd-spa Release Nexus Repository</name>
@@ -73,7 +75,7 @@
             <name>wknd-spa Snapshot Nexus Repository</name>
             <url>http://3.92.61.217:8081/repository/wknd-spa-snapshot</url>
         </snapshotRepository>
-    </distributionManagement>
+    </distributionManagement> -->
 
     <build>
         <plugins>
