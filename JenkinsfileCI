@@ -46,11 +46,11 @@ pipeline{
                         def uploadSpec = """{
                             "files": [
                                 {
-                                "pattern": "deployment/(*)",
+                                "pattern": "deployment/target/(*)",
                                 "target": "aem-local-demo-snapshot-repo/{1}",
                                 "flat": "false",
                                 "props" : "${properties}",
-                                "exclusions": [ "*.sha1", "*.md5", "*.jar", "*.pom", "*.properties"]
+                                "exclusions": [ "*.sha1", "*.md5", "*.jar", "*.xml", "*.properties"]
                                 }
                             ]
                         }"""
