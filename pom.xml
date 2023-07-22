@@ -63,20 +63,6 @@
          <sonar.login>squ_610deb297baf0f4a429e1260f43e87860f30853e</sonar.login>        
     </properties>
    
-    <!--Jenkins integration with Nexus repo-->
-    <!-- <distributionManagement>
-        <repository>
-            <id>nexus</id>
-            <name>wknd-spa Release Nexus Repository</name>
-            <url>http://3.92.61.217:8081/repository/wknd-spa-release</url>
-        </repository>
-        <snapshotRepository>
-            <id>nexus</id>
-            <name>wknd-spa Snapshot Nexus Repository</name>
-            <url>http://3.92.61.217:8081/repository/wknd-spa-snapshot</url>
-        </snapshotRepository>
-    </distributionManagement> -->
-
     <build>
         <plugins>
             <!-- Maven Release Plugin -->
