@@ -35,7 +35,7 @@ pipeline{
             steps{
                 echo '<--------------- Unit Testing started  --------------->'
                 // sh "mvn clean install"
-                sh "mvn clean install -Dmaven.test.skip=true"
+                sh 'mvn surefire-report:report'
                 echo '<------------- Unit Testing stopped  --------------->'
             }
         }
