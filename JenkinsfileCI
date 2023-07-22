@@ -9,7 +9,7 @@ pipeline{
     options {
         timestamps()
     }
-
+//security
     parameters {
         choice choices: ['master', 'develop', 'feature', 'qa'], name: 'branchName'
         string defaultValue: 'https://github.com/sumds/aem-guides-wknd-spa.git', name: 'giturl'
@@ -34,7 +34,7 @@ pipeline{
         stage('Unit Test') {
             steps{
                 echo '<--------------- Unit Testing started  --------------->'
-                //sh 'mvn surefire-report:report'
+                //sh 'mvn surefire-report:report' -->not working
                 echo '<------------- Unit Testing stopped  --------------->'
             }
         }
@@ -70,6 +70,24 @@ pipeline{
                 
                 }
             }   
+        }
+
+        stage ('Deploy to Prod'){
+            script {
+                def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"jfrog_access"
+                def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}";
+                def downloadSpec = """{
+                    "files": [
+                        {
+                        "pattern": "aem-local-demo-snapshot-repo",
+                        "target": "/test",
+                        "flat": "false",
+                        "props" : "${properties},Performance-Tested=Yes;Integration-Tested=Yes",
+                        }
+                    ]
+                }"""
+                def buildInfo = server.download(downloadSpec)
+            }
         }     
     }
 }

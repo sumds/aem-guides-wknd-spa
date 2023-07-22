@@ -1,7 +1,26 @@
+def registry = 'http://3.85.103.123:8082'
 pipeline{
     agent any
 
     options {
         timestamps()
-    }   
+    }
+    
+   stages{
+    stage ('Deploy to Prod'){
+        script {
+            def downloadSpec = """{
+                "files": [
+                    {
+                     "pattern": "aem-local-demo-snapshot-repo",
+                     "target": "aem-local-demo-snapshot-repo/{1}",
+                      "flat": "false",
+                      "props" : "${properties}",
+                      "exclusions": [ "*.sha1", "*.md5", "*.jar", "*.xml", "*.properties"]
+                    }
+                ]
+            }"""
+        }
+    }
+   }
 }
