@@ -83,7 +83,7 @@ pipeline{
                             "pattern": "aem-local-demo-snapshot-repo",
                             "target": "/test",
                             "flat": "false",
-                            "props" : "${properties},Performance-Tested=Yes;Integration-Tested=Yes",
+                            "props" : "${properties},Performance-Tested=Yes;Integration-Tested=Yes"
                             }
                         ]
                     }"""
