@@ -25,8 +25,8 @@ pipeline{
         stage("Build"){
             steps{
                 echo '<--------------- Building --------------->'
-                // sh "mvn clean install"
-                sh "mvn clean install -Dmaven.test.skip=true"
+                sh "mvn clean install"
+                //sh "mvn clean install -Dmaven.test.skip=true"
                 echo "----------- build completed ----------"
             }
         }
@@ -34,8 +34,7 @@ pipeline{
         stage('Unit Test') {
             steps{
                 echo '<--------------- Unit Testing started  --------------->'
-                // sh "mvn clean install"
-                sh 'mvn surefire-report:report'
+                //sh 'mvn surefire-report:report'
                 echo '<------------- Unit Testing stopped  --------------->'
             }
         }
