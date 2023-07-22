@@ -22,12 +22,21 @@ pipeline{
             }
         }
         
-        stage("build"){
+        stage("Build"){
             steps{
-                echo "----------- build started ----------"
+                echo '<--------------- Building --------------->'
                 // sh "mvn clean install"
                 sh "mvn clean install -Dmaven.test.skip=true"
                 echo "----------- build completed ----------"
+            }
+        }
+
+        stage('Unit Test') {
+            steps{
+                echo '<--------------- Unit Testing started  --------------->'
+                // sh "mvn clean install"
+                sh "mvn clean install -Dmaven.test.skip=true"
+                echo '<------------- Unit Testing stopped  --------------->'
             }
         }
 
@@ -40,9 +49,10 @@ pipeline{
         stage("AEM Publish") {
             steps {
                 script {
-                        echo '<--------------- Jar Publish Started --------------->'
+                        echo '<--------------- AEM package Publish Started --------------->'
                         def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"jfrog_access"
                         def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}";
+                        //upload specifications
                         def uploadSpec = """{
                             "files": [
                                 {
@@ -57,7 +67,7 @@ pipeline{
                         def buildInfo = server.upload(uploadSpec)
                         buildInfo.env.collect()
                         server.publishBuildInfo(buildInfo)
-                        echo '<--------------- Publish Ended --------------->'  
+                        echo '<--------------- AEM package Publish Ended --------------->'  
                 
                 }
             }   
