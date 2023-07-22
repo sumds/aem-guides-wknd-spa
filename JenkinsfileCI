@@ -77,6 +77,7 @@ pipeline{
                 script {
                     def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"jfrog_access"
                     def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}";
+                    echo "${properties}"
                     def downloadSpec = """{
                         "files": [
                             {
