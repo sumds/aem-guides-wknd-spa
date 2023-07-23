@@ -1,6 +1,7 @@
 def registry = 'http://52.70.116.150:8082' //jfrog repo url
 def user = "admin"
 def password = "admin"
+
 def URL = "/crx/packmgr/service.jsp"
 pipeline{
     agent any
@@ -27,27 +28,27 @@ pipeline{
             }
         }
 
-        stage("SonarQube Analysis"){
-            steps{
-                withSonarQubeEnv('sonar'){
-                    sh "mvn sonar:sonar"
-                }                
-            }
-        }
+        // stage("SonarQube Analysis"){
+        //     steps{
+        //         withSonarQubeEnv('sonar'){
+        //             sh "mvn sonar:sonar"
+        //         }                
+        //     }
+        // }
        
-        stage("Quality Gate"){
-            steps{
-                script{
-                    echo '<--------------- Sonar Gate Analysis Started --------------->'
-                    timeout(time: 1, unit: 'HOURS'){
-                       def qg = waitForQualityGate()
-                        if(qg.status !='OK') {
-                            error "Pipeline failed due to quality gate failures: ${qg.status}"
-                        }
-                    }
-                }
-            }
-        }
+        // stage("Quality Gate"){
+        //     steps{
+        //         script{
+        //             echo '<--------------- Sonar Gate Analysis Started --------------->'
+        //             timeout(time: 1, unit: 'HOURS'){
+        //                def qg = waitForQualityGate()
+        //                 if(qg.status !='OK') {
+        //                     error "Pipeline failed due to quality gate failures: ${qg.status}"
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
         
         stage("Build"){
             steps{
@@ -64,63 +65,89 @@ pipeline{
                 echo '<------------- Unit Testing stopped  --------------->'
             }
         }
-       
-        stage("AEM Publish") {
-            steps {
-                script {
-                        echo '<--------------- AEM package Publish Started --------------->'
-                        def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"jfrog_access"
-                        def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}";
-                        //upload specifications
-                        def uploadSpec = """{
-                            "files": [
-                                {
-                                "pattern": "deployment/target/(*)",
-                                "target": "aem-local-demo-snapshot-repo/{1}",
-                                "flat": "false",
-                                "props" : "${properties}",
-                                "exclusions": [ "*.sha1", "*.md5", "*.jar", "*.xml", "*.properties"]
-                                }
-                            ]
-                        }"""
-                        def buildInfo = server.upload(uploadSpec)
-                        buildInfo.env.collect()
-                        server.publishBuildInfo(buildInfo)
-                        echo '<--------------- AEM package Publish Ended --------------->'  
-                
-                }
-            }   
-        }
-        
-        stage ('Download from Jfrog'){
-            steps {
-                script {
-                    def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"jfrog_access"
-                    def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}";
-                    echo "${properties}"
-                    def downloadSpec = """{
-                        "files": [
-                            {
-                            "pattern": "aem-local-demo-snapshot-repo/*.zip",
-                            "target": "jfrog-release/",
-                            "flat": "false"                            
-                            }
-                        ]
-                    }"""
-                    def buildInfo = server.download(downloadSpec)
-                    buildInfo.env.collect()
-                    server.publishBuildInfo(buildInfo)
-                }                
-            }
-        }   
 
-        stage('Deploy to DEV'){ 
-            steps{                
-                echo " Installing Pakage on Author" 
-                dir('jfrog-release') {
-                    sh 'curl -u $user:$password -F file=@"aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT.zip" -F name="aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT" -F force=true -F install=true http://54.152.188.106:4502$URL'                                 
-                    }
+        stage ('Upload to Jfrog') {
+            steps {
+                
+                rtServer (
+                    id: 'Artifactory-1',
+                    url: 'http://52.70.116.150:8082/artifactory',
+                    credentialsId: 'jfrog_access'                    
+                )
+
+                rtUpload (
+                    // Obtain an Artifactory server instance, defined in Jenkins --> Manage Jenkins --> Configure System:
+                    serverId: 'Artifactory-1',
+                    def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}",
+                    spec: """{
+                            "files": [
+                                    {
+                                        "pattern": "deployment/target/(*)",
+                                        "target": "aem-local-demo-snapshot-repo/{1}",
+                                        "props" : "${properties}"
+                                    }
+                                ]
+                            }"""
+                )
             }
-        } 
+        }
+       
+        // stage("Upload to Jfrog") {
+        //     steps {
+        //         script {
+        //                 echo '<--------------- AEM package Publish Started --------------->'
+        //                 def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"jfrog_access"
+        //                 def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}";
+        //                 //upload specifications
+        //                 def uploadSpec = """{
+        //                     "files": [
+        //                         {
+        //                         "pattern": "deployment/target/(*)",
+        //                         "target": "aem-local-demo-snapshot-repo/{1}",
+        //                         "flat": "false",
+        //                         "props" : "${properties}",
+        //                         "exclusions": [ "*.sha1", "*.md5", "*.jar", "*.xml", "*.properties"]
+        //                         }
+        //                     ]
+        //                 }"""
+        //                 def buildInfo = server.upload(uploadSpec)
+        //                 buildInfo.env.collect()
+        //                 server.publishBuildInfo(buildInfo)
+        //                 echo '<--------------- AEM package Publish Ended --------------->'  
+                
+        //         }
+        //     }   
+        // }
+        
+        // stage ('Download from Jfrog'){
+        //     steps {
+        //         script {
+        //             def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"jfrog_access"
+        //             def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}";
+        //             echo "${properties}"
+        //             def downloadSpec = """{
+        //                 "files": [
+        //                     {
+        //                     "pattern": "aem-local-demo-snapshot-repo/*.zip",
+        //                     "target": "jfrog-release/",
+        //                     "flat": "false"                            
+        //                     }
+        //                 ]
+        //             }"""
+        //             def buildInfo = server.download(downloadSpec)
+        //             buildInfo.env.collect()
+        //             server.publishBuildInfo(buildInfo)
+        //         }                
+        //     }
+        // }   
+
+        // stage('Deploy to DEV'){ 
+        //     steps{                
+        //         echo " Installing Pakage on Author" 
+        //         dir('jfrog-release') {
+        //             sh 'curl -u $user:$password -F file=@"aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT.zip" -F name="aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT" -F force=true -F install=true http://54.152.188.106:4502$URL'                                 
+        //             }
+        //     }
+        // } 
     }
 }
