@@ -46,7 +46,7 @@ pipeline{
         stage("Quality Gate"){
             steps{
                 script{
-                    echo '<--------------- Sonar Gate Analysis Started --------------->'
+                    echo '<--------------- Sonar Gate Analysis Started -------------->'
                     timeout(time: 1, unit: 'HOURS'){
                        def qg = waitForQualityGate()
                         if(qg.status !='OK') {
