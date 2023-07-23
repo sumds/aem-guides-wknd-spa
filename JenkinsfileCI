@@ -12,6 +12,7 @@ pipeline{
     options {
         timestamps()
     }
+
 //security
     parameters {
         choice choices: ['master', 'develop', 'feature', 'qa'], name: 'branchName'
@@ -33,6 +34,14 @@ pipeline{
             }
         }
 
+         stage("SonarQube Analysis"){
+            steps{
+                withSonarQubeEnv('sonar'){
+                    sh "mvn sonar:sonar"
+                }                
+            }
+        }
+
         stage('Unit Test') {
             steps{
                 echo '<--------------- Unit Testing started  --------------->'
@@ -41,12 +50,7 @@ pipeline{
             }
         }
 
-        // stage("Execute sonarqube report"){
-        //     steps{
-        //         sh "mvn sonar:sonar"
-        //     }
-        // }
-
+       
         stage("AEM Publish") {
             steps {
                 script {
@@ -101,7 +105,8 @@ pipeline{
             steps{                
                 echo " Installing Pakage on Author" 
                 dir('jfrog-release') {
-                    sh 'curl -u $user:$password -F file=@"aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT.zip" -F name="aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT" -F force=true -F install=true http://54.152.188.106:4502$URL'                                  }
+                    sh 'curl -u $user:$password -F file=@"aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT.zip" -F name="aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT" -F force=true -F install=true http://54.152.188.106:4502$URL'                                 
+                    }
             }
         } 
     }
