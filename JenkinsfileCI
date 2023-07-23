@@ -1,4 +1,4 @@
-def registry = 'http://3.85.103.123:8082'
+def registry = 'http://52.70.116.150:8082'
 pipeline{
     agent any
 
@@ -75,15 +75,12 @@ pipeline{
         stage ('Deploy to Prod'){
             steps {
                 script {
-                    echo '<--------------- AEM package Deploy to Prod started --------------->'
                     def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"jfrog_access"
                     def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}";
-                    echo "printing prop"
-                    echo "${properties}"
                     def downloadSpec = """{
                         "files": [
                             {
-                            "pattern": "aem-local-demo-snapshot-repo/{1}",
+                            "pattern": "aem-local-demo-snapshot-repo",
                             "target": "test/",
                             "flat": "false",
                             "props" : "${properties}"
@@ -93,7 +90,6 @@ pipeline{
                     def buildInfo = server.download(downloadSpec)
                     buildInfo.env.collect()
                     server.publishBuildInfo(buildInfo)
-                    echo '<---------------  Ended AEM package Deploy to Prod --------------->'  
                 }
             }
         }     
