@@ -81,10 +81,9 @@ pipeline{
                     def downloadSpec = """{
                         "files": [
                             {
-                            "pattern": "aem-local-demo-snapshot-repo/{1}",
+                            "pattern": "aem-local-demo-snapshot-repo/*.zip",
                             "target": "test/",
-                            "flat": "false",
-                            "props" : "${properties}"
+                            "flat": "false"                            
                             }
                         ]
                     }"""
