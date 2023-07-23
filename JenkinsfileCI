@@ -1,4 +1,7 @@
 def registry = 'http://52.70.116.150:8082'
+def user = "admin"
+def password = "admin"
+def URL = "/crx/packmgr/service.jsp"
 pipeline{
     agent any
 
@@ -95,11 +98,8 @@ pipeline{
         // }   
 
         stage('Deploy to Prod'){ 
-            steps {
-                def user = "admin"
-                def password = "admin"
-                def URL = "/crx/packmgr/service.jsp"
-
+            steps{
+                
                 echo " Installing Pakage on Author"
                 sh 'cd test'
                 sh 'curl -u $User:$Passwd -F file=@"aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT.zip" -F name="aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT" -F force=true -F install=true http://54.152.188.106:4502$URL'
