@@ -25,21 +25,21 @@ pipeline{
             }
         }
         
-        // stage("Build"){
-        //     steps{
-        //         echo '<--------------- Building --------------->'
-        //         sh "mvn clean install"
-        //         echo "----------- build completed ----------"
-        //     }
-        // }
+        stage("Build"){
+            steps{
+                echo '<--------------- Building --------------->'
+                sh "mvn clean install"
+                echo "----------- build completed ----------"
+            }
+        }
 
-        // stage('Unit Test') {
-        //     steps{
-        //         echo '<--------------- Unit Testing started  --------------->'
-        //         //sh 'mvn surefire-report:report' -->not working
-        //         echo '<------------- Unit Testing stopped  --------------->'
-        //     }
-        // }
+        stage('Unit Test') {
+            steps{
+                echo '<--------------- Unit Testing started  --------------->'
+                //sh 'mvn surefire-report:report' -->not working
+                echo '<------------- Unit Testing stopped  --------------->'
+            }
+        }
 
         // stage("Execute sonarqube report"){
         //     steps{
@@ -47,32 +47,32 @@ pipeline{
         //     }
         // }
 
-        // stage("AEM Publish") {
-        //     steps {
-        //         script {
-        //                 echo '<--------------- AEM package Publish Started --------------->'
-        //                 def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"jfrog_access"
-        //                 def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}";
-        //                 //upload specifications
-        //                 def uploadSpec = """{
-        //                     "files": [
-        //                         {
-        //                         "pattern": "deployment/target/(*)",
-        //                         "target": "aem-local-demo-snapshot-repo/{1}",
-        //                         "flat": "false",
-        //                         "props" : "${properties}",
-        //                         "exclusions": [ "*.sha1", "*.md5", "*.jar", "*.xml", "*.properties"]
-        //                         }
-        //                     ]
-        //                 }"""
-        //                 def buildInfo = server.upload(uploadSpec)
-        //                 buildInfo.env.collect()
-        //                 server.publishBuildInfo(buildInfo)
-        //                 echo '<--------------- AEM package Publish Ended --------------->'  
+        stage("AEM Publish") {
+            steps {
+                script {
+                        echo '<--------------- AEM package Publish Started --------------->'
+                        def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"jfrog_access"
+                        def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}";
+                        //upload specifications
+                        def uploadSpec = """{
+                            "files": [
+                                {
+                                "pattern": "deployment/target/(*)",
+                                "target": "aem-local-demo-snapshot-repo/{1}",
+                                "flat": "false",
+                                "props" : "${properties}",
+                                "exclusions": [ "*.sha1", "*.md5", "*.jar", "*.xml", "*.properties"]
+                                }
+                            ]
+                        }"""
+                        def buildInfo = server.upload(uploadSpec)
+                        buildInfo.env.collect()
+                        server.publishBuildInfo(buildInfo)
+                        echo '<--------------- AEM package Publish Ended --------------->'  
                 
-        //         }
-        //     }   
-        // }
+                }
+            }   
+        }
 
         
         // stage ('Deploy to Prod'){
@@ -85,7 +85,7 @@ pipeline{
         //                 "files": [
         //                     {
         //                     "pattern": "aem-local-demo-snapshot-repo/*.zip",
-        //                     "target": "test/",
+        //                     "target": "jfrog-release/",
         //                     "flat": "false"                            
         //                     }
         //                 ]
@@ -97,17 +97,13 @@ pipeline{
         //     }
         // }   
 
-        stage('Deploy to Prod'){ 
-            steps{
-                
-                echo " Installing Pakage on Author"
-                sh 'cd test'
-                
-                dir('test') {
-                    sh 'pwd'
-                    sh 'curl -u $user:$password -F file=@"aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT.zip" -F name="aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT" -F force=true -F install=true http://54.152.188.106:4502$URL'
-                }
-            }
-        } 
+        // stage('Deploy to Prod'){ 
+        //     steps{                
+        //         echo " Installing Pakage on Author" 
+        //         dir('jfrog-release') {
+        //             sh 'pwd'
+        //             sh 'curl -u $user:$password -F file=@"aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT.zip" -F name="aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT" -F force=true -F install=true http://54.152.188.106:4502$URL'                                  }
+        //     }
+        // } 
     }
 }
