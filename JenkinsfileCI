@@ -1,4 +1,4 @@
-def registry = 'http://52.70.116.150:8082'
+def registry = 'http://52.70.116.150:8082' //jfrog repo url
 def user = "admin"
 def password = "admin"
 def URL = "/crx/packmgr/service.jsp"
@@ -34,8 +34,7 @@ pipeline{
                 }                
             }
         }
-        
-        
+       
         stage("Quality Gate"){
             steps{
                 script{
@@ -65,7 +64,6 @@ pipeline{
                 echo '<------------- Unit Testing stopped  --------------->'
             }
         }
-
        
         stage("AEM Publish") {
             steps {
@@ -93,7 +91,6 @@ pipeline{
                 }
             }   
         }
-
         
         stage ('Download from Jfrog'){
             steps {
