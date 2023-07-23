@@ -26,14 +26,6 @@ pipeline{
                 git branch: "${params.branchName}",credentialsId: 'sumds', url: "${params.giturl}"
             }
         }
-        
-        stage("Build"){
-            steps{
-                echo '<--------------- Building --------------->'
-                sh "mvn clean install"
-                echo "----------- build completed ----------"
-            }
-        }
 
         stage("SonarQube Analysis"){
             steps{
@@ -56,8 +48,15 @@ pipeline{
                 }
             }
         }
-
         
+        stage("Build"){
+            steps{
+                echo '<--------------- Building --------------->'
+                sh "mvn clean install"
+                echo "----------- build completed ----------"
+            }
+        }
+
         stage('Unit Test') {
             steps{
                 echo '<--------------- Unit Testing started  --------------->'
