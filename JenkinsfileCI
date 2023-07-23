@@ -75,35 +75,34 @@ pipeline{
         }
 
         
-        // stage ('Deploy to Prod'){
-        //     steps {
-        //         script {
-        //             def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"jfrog_access"
-        //             def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}";
-        //             echo "${properties}"
-        //             def downloadSpec = """{
-        //                 "files": [
-        //                     {
-        //                     "pattern": "aem-local-demo-snapshot-repo/*.zip",
-        //                     "target": "jfrog-release/",
-        //                     "flat": "false"                            
-        //                     }
-        //                 ]
-        //             }"""
-        //             def buildInfo = server.download(downloadSpec)
-        //             buildInfo.env.collect()
-        //             server.publishBuildInfo(buildInfo)
-        //         }                
-        //     }
-        // }   
+        stage ('Download from Jfrog'){
+            steps {
+                script {
+                    def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"jfrog_access"
+                    def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}";
+                    echo "${properties}"
+                    def downloadSpec = """{
+                        "files": [
+                            {
+                            "pattern": "aem-local-demo-snapshot-repo/*.zip",
+                            "target": "jfrog-release/",
+                            "flat": "false"                            
+                            }
+                        ]
+                    }"""
+                    def buildInfo = server.download(downloadSpec)
+                    buildInfo.env.collect()
+                    server.publishBuildInfo(buildInfo)
+                }                
+            }
+        }   
 
-        // stage('Deploy to Prod'){ 
-        //     steps{                
-        //         echo " Installing Pakage on Author" 
-        //         dir('jfrog-release') {
-        //             sh 'pwd'
-        //             sh 'curl -u $user:$password -F file=@"aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT.zip" -F name="aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT" -F force=true -F install=true http://54.152.188.106:4502$URL'                                  }
-        //     }
-        // } 
+        stage('Deploy to DEV'){ 
+            steps{                
+                echo " Installing Pakage on Author" 
+                dir('jfrog-release') {
+                    sh 'curl -u $user:$password -F file=@"aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT.zip" -F name="aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT" -F force=true -F install=true http://54.152.188.106:4502$URL'                                  }
+            }
+        } 
     }
 }
