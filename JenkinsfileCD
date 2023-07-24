@@ -114,15 +114,17 @@ pipeline {
         stage('Deploy to Production') {
             steps {
                 // Deploy the AEM package to the Production instance using Artifactory
-                def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"jfrog_access"
-                server.deploy spec: '''{
-                    "files": [
-                        {
-                            "pattern": "aem-local-demo-snapshot-repo/*.zip",
-                            "target": "jfrog-release/",
-                        }
-                    ]
-                }'''
+                script {
+                    def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"jfrog_access"
+                    server.deploy spec: '''{
+                        "files": [
+                            {
+                                "pattern": "aem-local-demo-snapshot-repo/*.zip",
+                                "target": "jfrog-release/",
+                            }
+                        ]
+                    }'''
+                }
 
                 dir('jfrog-release') {
                     sh 'curl -u $user:$password -F file=@"aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT.zip" -F name="aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT" -F force=true -F install=true http://54.152.188.106:4502$URL'
