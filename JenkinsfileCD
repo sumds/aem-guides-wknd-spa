@@ -93,7 +93,7 @@ pipeline {
                         // Mark the build as failure
                         currentBuild.result = 'FAILURE'
                         // Optionally, you can also re-throw the exception to halt the pipeline immediately
-                        // throw e
+                        throw e
                     }
                 }
             }
