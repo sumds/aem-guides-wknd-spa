@@ -1,6 +1,7 @@
 def registry = 'http://54.166.125.50:8082' //jfrog repo url
 def user = "admin"
 def password = "admin"
+def URL = "/crx/packmgr/service.jsp"
 
 pipeline {
     agent any
