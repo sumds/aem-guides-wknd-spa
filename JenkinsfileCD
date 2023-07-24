@@ -1,45 +1,149 @@
-def registry = 'http://52.70.116.150:8082'
+def registry = 'http://54.166.125.50:8082' //jfrog repo url
 def user = "admin"
 def password = "admin"
-def URL = "/crx/packmgr/service.jsp"
 
-pipeline{
+pipeline {
     agent any
-
+    tools{
+        maven 'maven-3.9.3'
+    }
+    
     options {
         timestamps()
     }
-    
-   stages{
-    stage ('Deploy to Prod'){
+
+    //security    
+    parameters {
+        choice choices: ['master', 'develop', 'feature', 'qa'], name: 'branchName'
+        string defaultValue: 'https://github.com/sumds/aem-guides-wknd-spa.git', name: 'giturl'
+    }
+
+    stages {
+        stage("Checkout from git"){
+            steps{
+                git branch: "${params.branchName}",credentialsId: 'sumds', url: "${params.giturl}"
+            }
+        }
+
+        stage("SonarQube Analysis"){
+            steps{
+                withSonarQubeEnv('sonar'){
+                    sh "mvn sonar:sonar"
+                }                
+            }
+        }
+
+        stage("Quality Gate"){
+            steps{
+                script{
+                    echo '<--------------- Sonar Gate Analysis Started --------------->'
+                    timeout(time: 1, unit: 'HOURS'){
+                       def qg = waitForQualityGate()
+                        if(qg.status !='OK') {
+                            error "Pipeline failed due to quality gate failures: ${qg.status}"
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Build AEM Project') {
+            steps {
+                // Build the AEM project using Maven
+                sh 'mvn clean install'
+            }
+        }
+
+        stage('Unit Test') {
+            steps{
+                echo '<--------------- Unit Testing started  --------------->'
+                //sh 'mvn surefire-report:report' -->not working
+                echo '<------------- Unit Testing stopped  --------------->'
+            }
+        }
+
+        stage('Upload to Artifactory') {
             steps {
                 script {
-                    def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"jfrog_access"
-                    def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}";
-                    echo "${properties}"
-                    def downloadSpec = """{
+                    // Define Artifactory server
+                   def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"jfrog_access"
+                   def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}";
+
+                    // Define upload spec
+                    def uploadSpec = """{
                         "files": [
                             {
-                            "pattern": "aem-local-demo-snapshot-repo/*.zip",
-                            "target": "jfrog-release/",
-                            "flat": "false"                            
+                                "pattern": "deployment/target/(*)",
+                                "target": "aem-local-demo-snapshot-repo/",
+                                "props" : "${properties}",
+                                "exclusions": [ "*.sha1", "*.md5", "*.jar", "*.xml", "*.properties"]
                             }
                         ]
                     }"""
-                    def buildInfo = server.download(downloadSpec)
+
+                    // Upload the package
+                    def buildInfo = server.upload(uploadSpec)
                     buildInfo.env.collect()
                     server.publishBuildInfo(buildInfo)
-                }                
-            }
-        }   
-
-        stage('Deploy to Prod'){ 
-            steps{                
-                echo " Installing Pakage on Author" 
-                dir('jfrog-release') {
-                    sh 'pwd'
-                    sh 'curl -u $user:$password -F file=@"aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT.zip" -F name="aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT" -F force=true -F install=true http://54.152.188.106:4502$URL'                                  }
+                }
             }
         }
-   }
+
+        // stage('Deploy to Dev') {
+        //     steps {
+        //         // Deploy the AEM package to the Dev instance
+        //         //sh "curl -u USERNAME:PASSWORD -X POST -F file=@/path/to/your/aem/package.zip http://AEM_DEV_URL/crx/packmgr/service.jsp"
+        //         sh 'curl -u $user:$password -X POST -F file=@"aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT.zip" -F name="aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT" -F force=true -F install=true http://54.152.188.106:4502$URL'
+        //     }
+        // }
+
+        // stage('Deploy to Staging') {
+        //     steps {
+        //         // Deploy the AEM package to the Staging instance
+        //         sh 'curl -u $user:$password -X POST -F file=@"aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT.zip" -F name="aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT" -F force=true -F install=true http://54.152.188.106:4502$URL'
+        //     }
+        // }
+
+        stage('Manual Approval for Production') {
+            steps {
+                // Pause the pipeline and wait for user input
+                input message: 'Approve deployment to Production?', submitter: 'sumit.b.das@capgemini.com'
+            }
+        }
+
+        stage('Deploy to Production') {
+            steps {
+                // Deploy the AEM package to the Production instance using Artifactory
+                def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"jfrog_access"
+                server.deploy spec: '''{
+                    "files": [
+                        {
+                            "pattern": "aem-local-demo-snapshot-repo/*.zip",
+                            "target": "jfrog-release/",
+                        }
+                    ]
+                }'''
+
+                dir('jfrog-release') {
+                    sh 'curl -u $user:$password -F file=@"aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT.zip" -F name="aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT" -F force=true -F install=true http://54.152.188.106:4502$URL'
+                }
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                // Add test execution steps if we have automated tests for SABB project
+                // For example: sh 'mvn test'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'AEM Deployment Pipeline successful!'
+        }
+        failure {
+            echo 'AEM Deployment Pipeline failed.'
+        }
+    }
 }
