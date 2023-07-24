@@ -66,26 +66,35 @@ pipeline {
         stage('Upload to Artifactory') {
             steps {
                 script {
-                    // Define Artifactory server
-                   def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"jfrog_access"
-                   def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}";
+                    try{
+                        // Upload the build to JFrog Artifactory
+                        def server = Artifactory.newServer url:registry+"/artifactor" ,  credentialsId:"jfrog_access"
+                        def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}";
 
-                    // Define upload spec
-                    def uploadSpec = """{
-                        "files": [
-                            {
-                                "pattern": "deployment/target/(*)",
-                                "target": "aem-local-demo-snapshot-repo/",
-                                "props" : "${properties}",
-                                "exclusions": [ "*.sha1", "*.md5", "*.jar", "*.xml", "*.properties"]
-                            }
-                        ]
-                    }"""
+                         // Define upload spec
+                        def uploadSpec = """{
+                            "files": [
+                                {
+                                    "pattern": "deployment/target/(*)",
+                                    "target": "aem-local-demo-snapshot-repo/",
+                                    "props" : "${properties}",
+                                    "exclusions": [ "*.sha1", "*.md5", "*.jar", "*.xml", "*.properties"]
+                                }
+                            ]
+                        }"""
 
-                    // Upload the package
-                    def buildInfo = server.upload(uploadSpec)
-                    buildInfo.env.collect()
-                    server.publishBuildInfo(buildInfo)
+                        // Upload the package
+                        def buildInfo = server.upload(uploadSpec)
+                        buildInfo.env.collect()
+                        server.publishBuildInfo(buildInfo)
+                    }catch (Exception e) {
+                        // Catch the exception
+                        echo "Failed to upload to Artifactory: ${e.getMessage()}"
+                        // Mark the build as failure
+                        currentBuild.result = 'FAILURE'
+                        // Optionally, you can also re-throw the exception to halt the pipeline immediately
+                        // throw e
+                    }
                 }
             }
         }
@@ -93,7 +102,6 @@ pipeline {
         // stage('Deploy to Dev') {
         //     steps {
         //         // Deploy the AEM package to the Dev instance
-        //         //sh "curl -u USERNAME:PASSWORD -X POST -F file=@/path/to/your/aem/package.zip http://AEM_DEV_URL/crx/packmgr/service.jsp"
         //         sh 'curl -u $user:$password -X POST -F file=@"aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT.zip" -F name="aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT" -F force=true -F install=true http://54.152.188.106:4502$URL'
         //     }
         // }
