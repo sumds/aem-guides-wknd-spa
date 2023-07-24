@@ -136,6 +136,7 @@ pipeline {
             steps {
                 // Add test execution steps if we have automated tests for SABB project
                 // For example: sh 'mvn test'
+                echo "running automated tests"
             }
         }
     }
