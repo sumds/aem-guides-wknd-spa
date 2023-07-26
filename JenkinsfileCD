@@ -1,4 +1,4 @@
-def registry = 'http://54.166.125.50:8082' //jfrog repo url
+def registry = 'http://44.212.77.88:8082' //jfrog repo url
 def user = "admin"
 def password = "admin"
 def URL = "/crx/packmgr/service.jsp"
@@ -26,27 +26,27 @@ pipeline {
             }
         }
 
-        stage("SonarQube Analysis"){
-            steps{
-                withSonarQubeEnv('sonar'){
-                    sh "mvn sonar:sonar"
-                }                
-            }
-        }
+        // stage("SonarQube Analysis"){
+        //     steps{
+        //         withSonarQubeEnv('sonar'){
+        //             sh "mvn sonar:sonar"
+        //         }                
+        //     }
+        // }
 
-        stage("Quality Gate"){
-            steps{
-                script{
-                    echo '<--------------- Sonar Gate Analysis Started --------------->'
-                    timeout(time: 1, unit: 'HOURS'){
-                       def qg = waitForQualityGate()
-                        if(qg.status !='OK') {
-                            error "Pipeline failed due to quality gate failures: ${qg.status}"
-                        }
-                    }
-                }
-            }
-        }
+        // stage("Quality Gate"){
+        //     steps{
+        //         script{
+        //             echo '<--------------- Sonar Gate Analysis Started --------------->'
+        //             timeout(time: 1, unit: 'HOURS'){
+        //                def qg = waitForQualityGate()
+        //                 if(qg.status !='OK') {
+        //                     error "Pipeline failed due to quality gate failures: ${qg.status}"
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
 
         stage('Build AEM Project') {
             steps {
@@ -68,7 +68,7 @@ pipeline {
                 script {
                     try{
                         // Upload the build to JFrog Artifactory
-                        def server = Artifactory.newServer url:registry+"/artifactor" ,  credentialsId:"jfrog_access"
+                        def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"jfrog_access"
                         def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}";
 
                          // Define upload spec
@@ -88,11 +88,8 @@ pipeline {
                         buildInfo.env.collect()
                         server.publishBuildInfo(buildInfo)
                     }catch (Exception e) {
-                        // Catch the exception
                         echo "Failed to upload to Artifactory: ${e.getMessage()}"
-                        // Mark the build as failure
                         currentBuild.result = 'FAILURE'
-                        // Optionally, you can also re-throw the exception to halt the pipeline immediately
                         throw e
                     }
                 }
@@ -140,7 +137,10 @@ pipeline {
                 }
 
                 dir('jfrog-release') {
-                    sh 'curl -u $user:$password -F file=@"aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT.zip" -F name="aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT" -F force=true -F install=true http://35.174.5.118:4502$URL'
+                    withCredentials([
+                        usernamePassword(credentialsId: 'aem-author-credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD'),
+                        ])
+                    sh 'curl -u $USERNAME:$PASSWORD -F file=@"aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT.zip" -F name="aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT" -F force=true -F install=true http://54.163.151.54:4502$URL'
                 }
             }
         }

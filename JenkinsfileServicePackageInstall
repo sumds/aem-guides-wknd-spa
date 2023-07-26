@@ -1,0 +1,44 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Deploy Service Package') {
+            steps {
+                script {
+                    // Define AEM instance URLs and credentials
+                    def authorUrl = 'http://localhost:4502'
+                    def authorUsername = 'admin'
+                    def authorPassword = 'admin'
+
+                    // Path to the built service package file
+                    def servicePackageFile = "path/to/your/service-package.zip"
+
+                    // Install the service package on the AEM author instance
+                    sh "curl -u ${authorUsername}:${authorPassword} -F file=@${servicePackageFile} ${authorUrl}/crx/packmgr/service.jsp?cmd=upload"
+
+                    // Wait for the package installation to finish (optional)
+                    sleep time: 30, unit: 'SECONDS'
+
+                    // Install the service package on the AEM publish instance (if needed)
+                    def publishUrl = 'http://localhost:4503'
+                    def publishUsername = 'admin'
+                    def publishPassword = 'admin'
+                    sh "curl -u ${publishUsername}:${publishPassword} -F file=@${servicePackageFile} ${publishUrl}/crx/packmgr/service.jsp?cmd=upload"
+
+                    // Wait for the package installation to finish (optional)
+                    // Add a delay if necessary
+                    sleep time: 30, unit: 'SECONDS'
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'AEM Service Package Deployment Successful!'
+        }
+        failure {
+            echo 'AEM Service Package Deployment Failed.'
+        }
+    }
+}
