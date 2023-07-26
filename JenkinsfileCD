@@ -140,7 +140,9 @@ pipeline {
                     withCredentials([
                         usernamePassword(credentialsId: 'aem-author-credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD'),
                         ])
-                    sh 'curl -u $USERNAME:$PASSWORD -F file=@"aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT.zip" -F name="aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT" -F force=true -F install=true http://54.163.151.54:4502$URL'
+                        {
+                            sh 'curl -u $USERNAME:$PASSWORD -F file=@"aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT.zip" -F name="aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT" -F force=true -F install=true http://54.163.151.54:4502$URL'
+                        }
                 }
             }
         }
