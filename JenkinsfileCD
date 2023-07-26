@@ -1,4 +1,4 @@
-def registry = 'http://44.212.77.88:8082' //jfrog repo url
+def registry = 'http://52.90.34.194:8082' //jfrog repo url
 def URL = "/crx/packmgr/service.jsp"
 
 pipeline {
@@ -119,7 +119,7 @@ pipeline {
             steps {
                 // Deploy the AEM package to the Production instance using Artifactory                
                 script {
-                    def previousVersion = env.PREVIOUS_VERSION
+                    def previousVersion = env.PREVIOUS_BUILD_NUMBER
                     echo ('printing the previous version')
 	                echo $previousVersion
                     def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"jfrog_access"
