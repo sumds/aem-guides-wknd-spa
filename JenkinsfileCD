@@ -24,27 +24,27 @@ pipeline {
             }
         }
 
-        // stage("SonarQube Analysis"){
-        //     steps{
-        //         withSonarQubeEnv('sonar'){
-        //             sh "mvn sonar:sonar"
-        //         }                
-        //     }
-        // }
+         stage("SonarQube Analysis"){
+             steps{
+                 withSonarQubeEnv('sonar'){
+                     sh "mvn sonar:sonar"
+                 }                
+             }
+         }
 
-        // stage("Quality Gate"){
-        //     steps{
-        //         script{
-        //             echo '<--------------- Sonar Gate Analysis Started --------------->'
-        //             timeout(time: 1, unit: 'HOURS'){
-        //                def qg = waitForQualityGate()
-        //                 if(qg.status !='OK') {
-        //                     error "Pipeline failed due to quality gate failures: ${qg.status}"
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
+         stage("Quality Gate"){
+             steps{
+                 script{
+                     echo '<--------------- Sonar Gate Analysis Started --------------->'
+                     timeout(time: 1, unit: 'HOURS'){
+                        def qg = waitForQualityGate()
+                         if(qg.status !='OK') {
+                             error "Pipeline failed due to quality gate failures: ${qg.status}"
+                         }
+                     }
+                 }
+             }
+         }
 
         stage('Build AEM Project') {
             steps {
@@ -150,7 +150,7 @@ pipeline {
                 // Add test execution steps if we have automated tests for SABB project
                 // For example: sh 'mvn test'
                 echo "running automated tests"
-                
+
             }
         }
     }
