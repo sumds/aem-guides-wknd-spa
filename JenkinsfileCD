@@ -115,13 +115,13 @@ pipeline {
             }
         }
 
-        stage('Deploy to Production') {
-            def previousVersion = env.PREVIOUS_VERSION
+        stage('Deploy to Production') {            
             steps {
-                // Deploy the AEM package to the Production instance using Artifactory
-                echo ('printing the previous version')
-	            echo $previousVersion
+                // Deploy the AEM package to the Production instance using Artifactory                
                 script {
+                    def previousVersion = env.PREVIOUS_VERSION
+                    echo ('printing the previous version')
+	                echo $previousVersion
                     def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"jfrog_access"
                     def deployspec = """{
                         "files": [
