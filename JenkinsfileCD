@@ -116,6 +116,9 @@ pipeline {
         }
 
         stage('Deploy to Production') {
+            def previousVersion = env.PREVIOUS_VERSION
+            echo ('printing the previous version')
+	        echo $previousVersion
             steps {
                 // Deploy the AEM package to the Production instance using Artifactory
                 script {
