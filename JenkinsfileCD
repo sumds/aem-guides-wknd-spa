@@ -1,4 +1,4 @@
-def registry = 'http://52.90.34.194:8082/artifactory' //jfrog repo url
+def registry = 'http://3.83.153.155:8082/artifactory' //jfrog repo url
 def URL = "/crx/packmgr/service.jsp"
 
 pipeline {
