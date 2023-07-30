@@ -1,4 +1,4 @@
-def registry = 'http://52.90.34.194:8082' //jfrog repo url
+def registry = 'http://52.90.34.194:8082/artifactory' //jfrog repo url
 def URL = "/crx/packmgr/service.jsp"
 
 pipeline {
@@ -64,17 +64,18 @@ pipeline {
         stage('Upload to Artifactory') {
             steps {
                 script {
+                    echo "GIT_BRANCH: ${env.GIT_BRANCH}"
                     try{
                         // Upload the build to JFrog Artifactory
-                        def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"jfrog_access"
+                        def server = Artifactory.newServer url:registry,  credentialsId:"jfrog_access"
                         def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}";
 
                          // Define upload spec
                         def uploadSpec = """{
                             "files": [
                                 {
-                                    "pattern": "deployment/target/(*)",
-                                    "target": "aem-local-demo-snapshot-repo/",
+                                    "pattern": "deployment/target/*.zip",
+                                    "target": "wknd-spa-libs-snapshot-local/",
                                     "props" : "${properties}",
                                     "exclusions": [ "*.sha1", "*.md5", "*.jar", "*.xml", "*.properties"]
                                 }
@@ -114,6 +115,20 @@ pipeline {
                 input message: 'Approve deployment to Production?', submitter: 'sumit.b.das@capgemini.com'
             }
         }
+
+//check tag
+        // stage('Check Tag') {
+        //      steps {
+        //         script {
+        //                 def versionExists = sh(script: "jfrog rt s --url=${ARTIFACTORY_URL} --user=${env.ARTIFACTORY_USERNAME} --password=${env.ARTIFACTORY_API_KEY} ${ARTIFACTORY_REPO}/${TAG_TO_DEPLOY}/", returnStatus: true) == 0
+        //                 if (versionExists) {
+        //                     echo "Tag '${TAG_TO_DEPLOY}' exists in ${ARTIFACTORY_REPO} repository."
+        //                     } else {
+        //                         error "Tag '${TAG_TO_DEPLOY}' does not exist in ${ARTIFACTORY_REPO} repository. Deployment aborted."
+        //                     }
+        //                 }
+        //             }
+        // }
 
         stage('Deploy to Production') {            
             steps {
