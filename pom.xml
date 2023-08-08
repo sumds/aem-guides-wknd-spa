@@ -22,7 +22,7 @@
     <groupId>com.adobe.aem.guides.wkndspa.react</groupId>
     <artifactId>aem-guides-wknd-spa.react</artifactId>
     <packaging>pom</packaging>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <name>WKND SPA React</name>
     <description>WKND SPA React</description>
 
