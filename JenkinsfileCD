@@ -141,7 +141,7 @@ pipeline {
                     def deployspec = """{
                         "files": [
                             {
-                            "pattern": "aem-local-demo-snapshot-repo/*.zip",
+                            "pattern": "wknd-spa-libs-snapshot-local/*.zip",
                             "target": "jfrog-release/",
                             "flat": "false"                            
                             }
