@@ -172,7 +172,7 @@ pipeline {
                                 usernamePassword(credentialsId: 'aem-author-credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD'),
                                 ])
                                 {
-                                    sh 'curl -u $USERNAME:$PASSWORD -F file=@aem-sab-poc-spa.react.all-1.0.0-SNAPSHOT.zip -F name="aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT" -F force=true -F install=true http://34.227.18.71:4502/crx/packmgr/service.jsp'
+                                    sh 'curl -u $USERNAME:$PASSWORD -F file=@aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT.zip -F name="aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT" -F force=true -F install=true http://34.227.18.71:4502/crx/packmgr/service.jsp'
                                 }
                             }catch(Exception e) {
                                 handleFailure("Error deploying AEM package: ${e.getMessage()}")
