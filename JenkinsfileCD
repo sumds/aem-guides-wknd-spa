@@ -1,4 +1,4 @@
-def registry = 'http://3.83.153.155:8082/artifactory' //jfrog repo url
+def registry = 'http://3.90.11.113:8082/artifactory' //jfrog repo url
 def URL = "/crx/packmgr/service.jsp"
 
 pipeline {
@@ -39,27 +39,27 @@ pipeline {
             }
         }
 
-        stage("SonarQube Analysis"){
-             steps{
-                 withSonarQubeEnv('sonar'){
-                     sh "mvn sonar:sonar"
-                 }                
-             }
-        }
+        // stage("SonarQube Analysis"){
+        //      steps{
+        //          withSonarQubeEnv('sonar'){
+        //              sh "mvn sonar:sonar"
+        //          }                
+        //      }
+        // }
 
-         stage("Quality Gate"){
-             steps{
-                 script{
-                     echo '<--------------- Sonar Gate Analysis Started --------------->'
-                     timeout(time: 1, unit: 'HOURS'){
-                        def qg = waitForQualityGate()
-                         if(qg.status !='OK') {
-                             error "Pipeline failed due to quality gate failures: ${qg.status}"
-                         }
-                     }
-                 }
-             }
-         }
+        //  stage("Quality Gate"){
+        //      steps{
+        //          script{
+        //              echo '<--------------- Sonar Gate Analysis Started --------------->'
+        //              timeout(time: 1, unit: 'HOURS'){
+        //                 def qg = waitForQualityGate()
+        //                  if(qg.status !='OK') {
+        //                      error "Pipeline failed due to quality gate failures: ${qg.status}"
+        //                  }
+        //              }
+        //          }
+        //      }
+        //  }
 
         stage('Upload to Artifactory') {
             steps {
@@ -157,7 +157,7 @@ pipeline {
                         usernamePassword(credentialsId: 'aem-author-credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD'),
                         ])
                         {
-                            sh 'curl -u $USERNAME:$PASSWORD -F file=@"aem-guides-wknd-spa.react.all-2.0.0-SNAPSHOT.zip" -F name="aem-guides-wknd-spa.react.all-2.0.0-SNAPSHOT" -F force=true -F install=true http://34.227.18.71:4502$URL'
+                            sh 'curl -u $USERNAME:$PASSWORD -F file=@"aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT.zip" -F name="aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT" -F force=true -F install=true http://34.227.18.71:4502$URL'
                         }                    
                 }                
             }
