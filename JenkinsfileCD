@@ -65,6 +65,7 @@ pipeline {
             steps {
                 script {
                     def appVersion = sh(script: 'mvn -q -Dexec.executable="echo" -Dexec.args=\'${project.version}\' --non-recursive exec:exec', returnStdout: true).trim()
+                    env.APP_VERSION = appVersion
                     echo "App Version: ${appVersion}"
                 }
             }
@@ -84,7 +85,7 @@ pipeline {
                             "files": [
                                 {
                                     "pattern": "deployment/target/*.zip",
-                                    "target": "wknd-spa-libs-snapshot-local/",
+                                    "target": "wknd-spa-libs-snapshot-local-${env.APP_VERSION}",
                                     "props" : "${properties}",
                                     "exclusions": [ "*.sha1", "*.md5", "*.jar", "*.xml", "*.properties"]
                                 }
