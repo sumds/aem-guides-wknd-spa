@@ -130,7 +130,7 @@ pipeline {
         //             }
         // }
 
-        stage('Deploy to Production') {            
+        stage('Download from jfrog') {            
             steps {
                 // Deploy the AEM package to the Production instance using Artifactory                
                 script {
@@ -152,15 +152,30 @@ pipeline {
                     server.publishBuildInfo(buildInfo)
                 }
                 
-                dir('jfrog-release') {
-                    withCredentials([
-                        usernamePassword(credentialsId: 'aem-author-credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD'),
-                        ])
-                        {
-                            sh 'curl -u $USERNAME:$PASSWORD -F file=@aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT.zip -F name="aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT" -F force=true -F install=true http://34.227.18.71:4502/crx/packmgr/service/.json/etc/packages/my/package/path'
-                        }                    
-                }                
+                // dir('jfrog-release') {
+                //     withCredentials([
+                //         usernamePassword(credentialsId: 'aem-author-credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD'),
+                //         ])
+                //         {
+                //             sh 'curl -u $USERNAME:$PASSWORD -F file=@aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT.zip -F name="aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT" -F force=true -F install=true http://34.227.18.71:4502/crx/packmgr/service/.json/etc/packages/my/package/path'
+                //         }                    
+                // }                
             }
+        }
+
+        stage('Deploy to Production') { 
+             steps {
+                dir('jfrog-release') {
+                    script {
+                        withCredentials([
+                            usernamePassword(credentialsId: 'aem-author-credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD'),
+                            ])
+                            {
+                                sh 'curl -u $USERNAME:$PASSWORD -F file=@aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT.zip -F name="aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT" -F force=true -F install=true http://34.227.18.71:4502/crx/packmgr/service/.json/etc/packages/my/package/path'
+                            }
+                        }
+                    }
+                }
         }
 
         stage('Run Tests') {
