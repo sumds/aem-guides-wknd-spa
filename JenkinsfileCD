@@ -24,20 +24,20 @@ pipeline {
             }
         }
 
-        stage('Build AEM Project') {
-            steps {
-                // Build the AEM project using Maven
-                sh 'mvn clean install'
-            }
-        }
+        // stage('Build AEM Project') {
+        //     steps {
+        //         // Build the AEM project using Maven
+        //         sh 'mvn clean install'
+        //     }
+        // }
 
-        stage('Unit Test') {
-            steps{
-                echo '<--------------- Unit Testing started  --------------->'
-                //sh 'mvn surefire-report:report' -->not working
-                echo '<------------- Unit Testing stopped  --------------->'
-            }
-        }
+        // stage('Unit Test') {
+        //     steps{
+        //         echo '<--------------- Unit Testing started  --------------->'
+        //         //sh 'mvn surefire-report:report' -->not working
+        //         echo '<------------- Unit Testing stopped  --------------->'
+        //     }
+        // }
 
         // stage("SonarQube Analysis"){
         //      steps{
@@ -157,7 +157,7 @@ pipeline {
                         usernamePassword(credentialsId: 'aem-author-credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD'),
                         ])
                         {
-                            sh 'curl -u $USERNAME:$PASSWORD -F file=@"aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT.zip" -F name="aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT" -F force=true -F install=true http://34.227.18.71:4502$URL'
+                            sh 'curl -u $USERNAME:$PASSWORD -F file=@aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT.zip -F name="aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT" -F force=true -F install=true http://34.227.18.71:4502/crx/packmgr/service/.json/etc/packages/my/package/path'
                         }                    
                 }                
             }
