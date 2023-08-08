@@ -61,6 +61,15 @@ pipeline {
         //      }
         //  }
 
+        stage('Extract Version') {
+            steps {
+                script {
+                    def appVersion = sh(script: 'mvn -q -Dexec.executable="echo" -Dexec.args=\'${project.version}\' --non-recursive exec:exec', returnStdout: true).trim()
+                    echo "App Version: ${appVersion}"
+                }
+            }
+        }
+
         stage('Upload to Artifactory') {
             steps {
                 script {
@@ -130,7 +139,7 @@ pipeline {
         //             }
         // }
 
-        stage('Download from jfrog') {            
+        stage('Download from artifactory') {            
             steps {
                 // Deploy the AEM package to the Production instance using Artifactory                
                 script {
@@ -150,16 +159,7 @@ pipeline {
                     def buildInfo = server.download(deployspec)
                     buildInfo.env.collect()
                     server.publishBuildInfo(buildInfo)
-                }
-                
-                // dir('jfrog-release') {
-                //     withCredentials([
-                //         usernamePassword(credentialsId: 'aem-author-credentials', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD'),
-                //         ])
-                //         {
-                //             sh 'curl -u $USERNAME:$PASSWORD -F file=@aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT.zip -F name="aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT" -F force=true -F install=true http://34.227.18.71:4502/crx/packmgr/service/.json/etc/packages/my/package/path'
-                //         }                    
-                // }                
+                }   
             }
         }
 
@@ -175,8 +175,10 @@ pipeline {
                                     sh 'curl -u $USERNAME:$PASSWORD -F file=@aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT.zip -F name="aem-guides-wknd-spa.react.all-1.0.0-SNAPSHOT" -F force=true -F install=true http://34.227.18.71:4502/crx/packmgr/service.jsp'
                                 }
                             }catch(Exception e) {
-                                handleFailure("Error deploying AEM package: ${e.getMessage()}")
-                                }  
+                                echo "Failed to deploy code to PROD: ${e.getMessage()}"
+                                currentBuild.result = 'FAILURE'
+                                throw e
+                            }  
                         }
                     }
              }
